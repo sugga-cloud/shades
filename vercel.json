@@ -5,8 +5,8 @@
       "src": "manage.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "50mb"
-        "runtime": "python-3.9"
+        "maxLambdaSize": "50mb",
+        "runtime": "python-3.8.0"
       }      
     }
   ],
