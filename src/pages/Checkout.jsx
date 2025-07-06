@@ -159,7 +159,7 @@ export default function CheckoutPage() {
     (sum, item) => sum + (item.products?.price || 0) * item.quantity,
     0
   );
-  const shippingCost = 50.0; // Example fixed shipping cost in INR
+  const shippingCost = 0.0; // Example fixed shipping cost in INR
   const taxRate = 0.08; // Example 8% tax
   const taxAmount = subtotal * taxRate;
   const total = subtotal + shippingCost + taxAmount;
