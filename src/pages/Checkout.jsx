@@ -160,7 +160,7 @@ export default function CheckoutPage() {
     0
   );
   const shippingCost = 0.0; // Example fixed shipping cost in INR
-  const taxRate = 0.08; // Example 8% tax
+  const taxRate = 0.0; // Example 8% tax
   const taxAmount = subtotal * taxRate;
   const total = subtotal + shippingCost + taxAmount;
 

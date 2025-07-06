@@ -3,10 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
-// Single falling star visual
 const FallingStar = ({ style }) => (
-  <div className="absolute bg-white rounded-full opacity-0" style={style}></div>
-)
+  <div className="absolute rounded-full opacity-0" style={{ ...style, backgroundColor: '#FFD700' }}></div>
+);
 
 export default function ProductHero() {
   const [stars, setStars] = useState([])

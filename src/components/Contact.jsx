@@ -118,10 +118,9 @@ export default function ContactSalesPage() {
         {/* Organization Contact Block */}
         <div className="mt-8 text-left p-6 bg-gray-800 rounded-lg shadow-sm text-white"> {/* Darker background for contact block, white text */}
           <h3 className="text-xl font-semibold mb-4">Our Contact Details</h3>
-          <p className="text-base mb-2"><strong>Email:</strong> contact@theshadestore.com</p>
-          <p className="text-base mb-2"><strong>Phone:</strong> +1 (555) 123-4567</p>
-          <p className="text-base"><strong>Address:</strong> 123 Fashion Lane, Style City, ST 12345</p>
-        </div>
+          <p className="text-base mb-2"><strong>Email:</strong> theshadestore81@gmail.com</p>
+          <p className="text-base mb-2"><strong>Phone:</strong> +91 8227540091</p>
+          </div>
       </div>
       
       {/* Replaced form with Call Now button */}

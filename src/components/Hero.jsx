@@ -1,14 +1,15 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Dialog, DialogPanel } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Link, useNavigate } from 'react-router-dom'
-import supabase from '../utils/supabaseClient'
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Dialog, DialogPanel } from '@headlessui/react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Link, useNavigate } from 'react-router-dom';
+import supabase from '../utils/supabaseClient';
 
 const FallingStar = ({ style }) => (
-  <div className="absolute bg-white rounded-full opacity-0" style={style}></div>
+  <div className="absolute rounded-full opacity-0" style={{ ...style, backgroundColor: '#FFD700' }}></div>
 );
+
 
 const LogoAnimator = ({ text }) => {
   const [animatedChars, setAnimatedChars] = useState(
@@ -148,11 +149,10 @@ export default function Hero() {
     const generateStars = () => {
       const newStars = [];
       const numStars = 50;
-      const containerWidth = window.innerWidth;
-      const containerHeight = window.innerHeight * 2;
+      const isSmallScreen = window.innerWidth <= 640;
 
       for (let i = 0; i < numStars; i++) {
-        const size = Math.random() * 40 + 1;
+        const size = isSmallScreen ? Math.random() * 10 + 2 : Math.random() * 40 + 1;
         const duration = Math.random() * 10 + 5;
         const delay = Math.random() * 10;
         const left = Math.random() * 100;
@@ -177,12 +177,11 @@ export default function Hero() {
     generateStars();
     const handleResize = () => generateStars();
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gray-900 font-inter overflow-hidden">
+    <div className="relative min-h-screen flex bg-gray-900 font-inter overflow-hidden">
       <style jsx>{`
         @keyframes fall {
           0% { transform: translateY(0vh); opacity: 0.3; }
@@ -196,8 +195,8 @@ export default function Hero() {
         {stars.map((star) => <FallingStar key={star.id} style={star.style} />)}
       </div>
 
-      <header className="absolute inset-x-0 top-0 z-50 bg-white shadow-md h-16">
-        <nav className="flex items-center justify-between p-4 lg:px-8">
+      <header className="absolute inset-x-0 top-0 z-50 bg-white shadow-md h-12 sm:h-16">
+        <nav className="flex items-center justify-between p-3 sm:p-4 lg:px-8">
           <div className="flex lg:flex-1">
             <Link to="/" className="-m-1.5 p-1.5 rounded-lg flex items-center">
               <span className="sr-only">The Shade Store</span>
@@ -219,7 +218,7 @@ export default function Hero() {
               <>
                 {user ? (
                   <>
-                    {(user.email === 'sazidhusain2004@gmail.com' || user.email === 'theshadestore81@gmail.com' ) && (
+                    {(user.email === 'sazidhusain2004@gmail.com' || user.email === 'theshadestore81@gmail.com') && (
                       <Link to="/admin" className="text-sm font-semibold text-blue-600 hover:text-blue-700">Admin</Link>
                     )}
                     <button onClick={handleLogout} className="text-sm font-semibold text-red-600 hover:text-red-700">
@@ -233,55 +232,10 @@ export default function Hero() {
             )}
           </div>
         </nav>
-
-        <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
-          <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full max-w-sm overflow-y-auto bg-white p-6 sm:ring-1 sm:ring-gray-900/10">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="-m-1.5 p-1.5 flex items-center">
-                <LogoAnimator text="The Shade Store" />
-              </Link>
-              <button onClick={() => setMobileMenuOpen(false)} className="-m-2.5 p-2.5 text-gray-700">
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-            </div>
-            <div className="mt-6">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                >
-                  {item.name}
-                </Link>
-              ))}
-              {!loadingUser && (
-                <>
-                  {user ? (
-                    <>
-                      {user.email === 'sazidhusain2004@gmail.com' && (
-                        <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-semibold text-blue-600 hover:bg-gray-50">
-                          Admin
-                        </Link>
-                      )}
-                      <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full text-left block px-3 py-2 text-base font-semibold text-red-600 hover:bg-gray-50">
-                        Logout
-                      </button>
-                    </>
-                  ) : (
-                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-semibold text-green-600 hover:bg-gray-50">
-                      Login
-                    </Link>
-                  )}
-                </>
-              )}
-            </div>
-          </DialogPanel>
-        </Dialog>
       </header>
 
       {/* Hero Content */}
-      <div className="relative z-10 mx-auto max-w-2xl pt-32 pb-16 px-4 sm:px-6 sm:pt-40 sm:pb-20 lg:pt-52 lg:pb-32">
+      <div className="relative z-10 mx-auto flex-1 max-w-2xl pt-32 pb-16 px-4 sm:px-6 sm:pt-40 sm:pb-0 lg:pt-52 lg:pb-32">
         <div className="text-center">
           <h1 id="animated-heading" className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white" />
           <p className="mt-8 text-base sm:text-lg lg:text-xl font-medium text-gray-300">

@@ -10,9 +10,12 @@ export default function LoginPage() {
   const [session, setSession] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+
   const navigate = useNavigate();
 
-  // 1️⃣ Check and validate session
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -20,14 +23,9 @@ export default function LoginPage() {
       setSession(activeSession);
 
       if (activeSession) {
-        // Test a real Supabase query to validate the session token
         const { error } = await supabase.from('products').select('id').limit(1);
-
-        if (!error) {
-          // Session is valid → redirect
-          navigate('/account');
-        } else {
-          console.warn('Session invalid or expired:', error.message);
+        if (!error) navigate('/account');
+        else {
           await supabase.auth.signOut();
           setSession(null);
         }
@@ -37,7 +35,6 @@ export default function LoginPage() {
     };
 
     checkSession();
-
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
@@ -47,7 +44,6 @@ export default function LoginPage() {
     };
   }, [navigate]);
 
-  // 2️⃣ Trigger Google Sign-in
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
@@ -55,21 +51,49 @@ export default function LoginPage() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: window.location.origin, // ensure this matches Supabase OAuth redirect URI
-        },
+        options: { redirectTo: window.location.origin },
       });
-
       if (error) throw error;
     } catch (err) {
-      console.error(err);
       setError('Google sign-in failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 3️⃣ While checking token, show loader
+  const handleEmailAuth = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      let result;
+      if (isRegistering) {
+        result = await supabase.auth.signUp({ email, password });
+      } else {
+        result = await supabase.auth.signInWithPassword({ email, password });
+      }
+
+      if (result.error) throw result.error;
+
+      if (result.data?.session) {
+        navigate('/account');
+      } else if (isRegistering) {
+        setError('Check your email to confirm registration.');
+      }
+    } catch (err) {
+      setError(err.message || 'Authentication failed.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (checkingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-700 text-yellow-400 text-xl font-semibold animate-pulse font-inter">
@@ -78,35 +102,15 @@ export default function LoginPage() {
     );
   }
 
-  // 4️⃣ Render Login Page
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-900 to-gray-700 p-4 font-inter">
-      <style jsx>{`
-        @keyframes fadeInScale {
-          0% { opacity: 0; transform: scale(0.9); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        .login-card-animation {
-          animation: fadeInScale 0.5s ease-out forwards;
-        }
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animated-gradient-bg {
-          background-size: 200% 200%;
-          animation: gradientShift 15s ease infinite;
-        }
-      `}</style>
-      <div className="relative z-10 bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm login-card-animation border border-gray-700"> {/* Darker card, rounded corners, shadow */}
+      <div className="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm login-card-animation border border-gray-700">
         <div className="flex flex-col items-center mb-6">
-          {/* Animated Logo/Brand Identity */}
           <svg className="w-24 h-24 text-yellow-400 mb-4 animate-bounce" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5zM12 14l-8 4 8 4 8-4-8-4z" />
           </svg>
-          <h2 className="text-3xl font-bold text-white text-center">The Shade Store</h2> {/* White text */}
-          <p className="text-sm text-gray-400 mt-2">Sign in to your account</p>
+          <h2 className="text-3xl font-bold text-white text-center">The Shade Store</h2>
+          <p className="text-sm text-gray-400 mt-2">{isRegistering ? 'Create an account' : 'Sign in to your account'}</p>
         </div>
 
         {error && (
@@ -115,27 +119,58 @@ export default function LoginPage() {
           </div>
         )}
 
+        <form onSubmit={handleEmailAuth} className="mb-6">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="w-full mb-3 px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full mb-4 px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600"
+            required
+          />
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-yellow-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-yellow-600 transition-all"
+          >
+            {isLoading ? 'Processing...' : isRegistering ? 'Register' : 'Login'}
+          </button>
+        </form>
+
+        <div className="text-sm text-gray-400 mb-4 text-center">
+          {isRegistering ? 'Already have an account?' : "Don't have an account?"}
+          <button
+            type="button"
+            onClick={() => setIsRegistering(!isRegistering)}
+            className="text-yellow-400 ml-2 underline"
+          >
+            {isRegistering ? 'Login' : 'Register'}
+          </button>
+        </div>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-600"></div>
+          </div>
+          <div className="relative flex justify-center text-sm text-gray-400 uppercase font-semibold bg-gray-800 px-4">
+            or
+          </div>
+        </div>
+
         <button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
-          className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 font-bold py-3 rounded-lg shadow-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 font-bold py-3 rounded-lg shadow-lg hover:from-yellow-600 hover:to-orange-600 transition-all flex items-center justify-center space-x-2"
         >
-          {isLoading ? (
-            <>
-              <svg className="animate-spin h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>Signing in...</span>
-            </>
-          ) : (
-            <>
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.24 10.285V11.69h4.225c-.175 1.15-.763 2.06-1.61 2.65-.845.59-1.928.93-3.115.93-2.36 0-4.32-1.92-4.32-4.28s1.96-4.28 4.32-4.28c1.288 0 2.37.44 3.25 1.25l1.07-1.07c-1.1-1.07-2.5-1.72-4.32-1.72-3.6 0-6.53 2.93-6.53 6.53s2.93 6.53 6.53 6.53c3.6 0 6.2-2.5 6.2-6.2v-.93h-6.2z" />
-              </svg>
-              <span>Sign in with Google</span>
-            </>
-          )}
+          {isLoading ? 'Loading...' : 'Sign in with Google'}
         </button>
       </div>
     </div>
