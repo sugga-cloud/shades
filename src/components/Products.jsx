@@ -7,20 +7,25 @@ import { getAllProducts } from '../services/productService';
 const LazyImage = ({ src, alt, className }) => {
   const imgRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+  const [currentSrc, setCurrentSrc] = useState(
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  );
 
   useEffect(() => {
     if (!imgRef.current) return;
 
-    const observer = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setCurrentSrc(src);
-          setIsLoaded(true);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { rootMargin: '100px' });
+    const observer = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setCurrentSrc(src);
+            setIsLoaded(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '100px' }
+    );
 
     observer.observe(imgRef.current);
     return () => {
@@ -56,7 +61,7 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
     async function fetchProducts() {
       try {
         const data = await getAllProducts();
-        const formatted = data.map(p => ({
+        const formatted = data.map((p) => ({
           id: p.id,
           name: p.title,
           imageSrc: p.image_url,
@@ -65,7 +70,7 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
           color: p.color || 'Unknown',
         }));
         const shuffled = shuffleArray(formatted);
-        setProducts(shuffled.slice(0, 6));
+        setProducts(shuffled.slice(0, 12)); // Fetch more products to show on large screens
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -82,7 +87,7 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
       size: Math.random() * 40 + 10,
       left: Math.random() * 100,
       delay: Math.random() * 5,
-      duration: Math.random() * 10 + 10
+      duration: Math.random() * 10 + 10,
     }));
     setBubbles(bubbleList);
   };
@@ -103,16 +108,28 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 font-inter">
+    <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-700 pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 font-inter">
       <style jsx>{`
         @keyframes rise {
-          0% { transform: translateY(100vh); opacity: 0.5; }
-          100% { transform: translateY(-10vh); opacity: 0; }
+          0% {
+            transform: translateY(100vh);
+            opacity: 0.5;
+          }
+          100% {
+            transform: translateY(-10vh);
+            opacity: 0;
+          }
         }
 
         @keyframes fall {
-          0% { transform: translateY(0vh); opacity: 0.4; }
-          100% { transform: translateY(200vh); opacity: 0; }
+          0% {
+            transform: translateY(0vh);
+            opacity: 0.4;
+          }
+          100% {
+            transform: translateY(200vh);
+            opacity: 0;
+          }
         }
 
         .bubble {
@@ -145,7 +162,7 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
 
       {/* Floating background stars and bubbles */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {stars.map(star => (
+        {stars.map((star) => (
           <div
             key={star.id}
             className="star"
@@ -156,12 +173,12 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
               top: `${star.top}vh`,
               animationDuration: `${star.duration}s`,
               animationDelay: `${star.delay}s`,
-              filter: 'blur(0.5px)'
+              filter: 'blur(0.5px)',
             }}
           />
         ))}
 
-        {bubbles.map(b => (
+        {bubbles.map((b) => (
           <div
             key={b.id}
             className="bubble"
@@ -171,23 +188,22 @@ export default function ProductGridSection({ text = 'Featured Products' }) {
               left: `${b.left}%`,
               animationDelay: `${b.delay}s`,
               animationDuration: `${b.duration}s`,
-              filter: 'blur(1px)'
+              filter: 'blur(1px)',
             }}
           />
         ))}
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-12 text-center">
-          {text}
-        </h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-12 text-center">{text}</h2>
 
         {/* Centered Snap Scroll */}
-        <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar">
-          {products.map(product => (
+        <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6">
+          {products.map((product) => (
             <div
               key={product.id}
-              className="snap-center min-w-full flex-shrink-0 flex justify-center px-4"
+              className="snap-center flex-shrink-0 flex justify-center px-4
+                min-w-full sm:min-w-[75%] md:min-w-[50%] lg:min-w-[33%] xl:min-w-[25%]"
             >
               <div className="w-full max-w-sm bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transform hover:scale-105 transition-transform duration-300">
                 <Link to={`/product/${product.id}`} className="block">
