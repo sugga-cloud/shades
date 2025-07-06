@@ -19,13 +19,9 @@ export const createProduct = async (productForm) => {
         image_url: imageUrl,
         image_alt: imageAlt,
         categoryIds: productForm.categoryIds || [],
-        color: productForm.color || null,
-        size: productForm.size || null,
-        description: productForm.description || '',
-        highlights: productForm.highlights || [],
-        details: productForm.details || '',
+        
       },
-    ])
+    
     .select()
 
   if (error) throw error
@@ -78,11 +74,7 @@ export const updateProduct = async (id, productForm) => {
       image_url: imageUrl,
       image_alt: imageAlt,
       categoryIds: productForm.categoryIds || [],
-      color: productForm.color || null,
-      size: productForm.size || null,
-      description: productForm.description || '',
-      highlights: productForm.highlights || [],
-      details: productForm.details || '',
+  
     })
     .eq('id', id)
 
