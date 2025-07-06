@@ -219,7 +219,7 @@ export default function Hero() {
               <>
                 {user ? (
                   <>
-                    {user.email === 'sazidhusain2004@gmail.com' && (
+                    {(user.email === 'sazidhusain2004@gmail.com' || user.email === 'theshadestore81@gmail.com' ) && (
                       <Link to="/admin" className="text-sm font-semibold text-blue-600 hover:text-blue-700">Admin</Link>
                     )}
                     <button onClick={handleLogout} className="text-sm font-semibold text-red-600 hover:text-red-700">
