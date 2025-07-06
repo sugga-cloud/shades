@@ -21,8 +21,7 @@ export const createProduct = async (productForm) => {
         categoryIds: productForm.categoryIds || [],
         
       },
-    
-    .select()
+    ]).select()
 
   if (error) throw error
   return data[0]
