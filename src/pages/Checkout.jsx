@@ -265,7 +265,7 @@ export default function CheckoutPage() {
 
       // 2. Open Razorpay Checkout Modal
       const options = {
-        key: 'rzp_test_B8rhEZBWTlBF7G', // Your Razorpay Test Key (replace with production key when live)
+        key: 'rzp_live_yAPlrcW1eFbPEZ', // Your Razorpay Test Key (replace with production key when live)
         amount: data.amount,
         currency: data.currency,
         name: 'The Shade Store',
