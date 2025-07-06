@@ -1,16 +1,14 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import NavBar from '../components/AccountNavBar'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
-
-import { getAllProducts } from '../services/productService'
-import { getAllCategories } from '../services/categoryService'
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import NavBar from '../components/AccountNavBar';
+import { FunnelIcon } from '@heroicons/react/20/solid';
+import { getAllProducts } from '../services/productService';
+import { getAllCategories } from '../services/categoryService';
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }
 
 const sortOptions = [
@@ -19,9 +17,8 @@ const sortOptions = [
   { name: 'Newest', current: false },
   { name: 'Price: Low to High', current: false },
   { name: 'Price: High to Low', current: false },
-]
+];
 
-// Animated Capsule Loader Component
 function CapsuleLoader() {
   return (
     <div className="flex justify-center items-center h-64">
@@ -33,8 +30,8 @@ function CapsuleLoader() {
         .capsule {
           width: 16px;
           height: 40px;
-          background-color: #ef4444; /* Tailwind red-500 */
-          border-radius: 9999px; /* Fully rounded */
+          background-color: #ef4444;
+          border-radius: 9999px;
           margin: 0 8px;
           animation: capsulePulse 1.2s infinite ease-in-out;
         }
@@ -51,85 +48,67 @@ function CapsuleLoader() {
   );
 }
 
-// Shooting Star Component
 function ShootingStar({ style }) {
-  return (
-    <div
-      className="absolute bg-white rounded-full opacity-0 shadow-lg"
-      style={style}
-    ></div>
-  );
+  return <div className="absolute bg-white rounded-full opacity-0 shadow-lg" style={style}></div>;
 }
 
 function ProductGrid({ products }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   if (!products || products.length === 0) {
-    return <div className="text-center py-10 text-gray-400">No products found matching your criteria.</div>
+    return <div className="text-center py-10 text-gray-400">No products found matching your criteria.</div>;
   }
 
   return (
-    <>
-    <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-      
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
         <div
           key={product.id}
           onClick={() => navigate(`/product/${product.id}`)}
-          className="group cursor-pointer transform hover:scale-105 transition-transform duration-300 ease-in-out
-                     bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-700" /* Enhanced styling for dark bg */
+          className="group cursor-pointer transform hover:scale-105 transition-transform duration-300 ease-in-out bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-700"
         >
           <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-t-lg bg-gray-700 xl:aspect-h-8 xl:aspect-w-7">
             <img
-              src={
-                product.imageUrl ||
-                `https://placehold.co/300x300/FFD700/333333?text=${product.name.replace(/\s/g, '+')}`
-              }
+              src={product.imageUrl || `https://placehold.co/300x300/FFD700/333333?text=${product.name.replace(/\s/g, '+')}`}
               alt={product.imageAlt || product.name}
               className="h-full w-full object-cover object-center group-hover:opacity-85 transition-opacity duration-300"
             />
           </div>
-          <div className="p-4"> {/* Added padding to content */}
-            <h3 className="mt-2 text-lg font-semibold text-white">{product.name}</h3> {/* Larger, bolder product name */}
+          <div className="p-4">
+            <h3 className="mt-2 text-lg font-semibold text-white">{product.name}</h3>
             <p className="text-sm text-gray-400">{product.categoryNames?.join(', ')}</p>
-            <p className="mt-2 text-xl font-bold text-yellow-400">{product.price}</p> {/* Larger, bolder price */}
+            <p className="mt-2 text-xl font-bold text-yellow-400">{product.price}</p>
           </div>
         </div>
       ))}
     </div>
-    </>
-  )
+  );
 }
 
 export default function ShopPage() {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-  const [allTransformedProducts, setAllTransformedProducts] = useState([]) // Stores all fetched products
-  const [filteredAndSortedProducts, setFilteredAndSortedProducts] = useState([]) // All products after filter/sort
-  const [displayedProducts, setDisplayedProducts] = useState([]) // Products currently shown (paginated)
-  const [selectedFilters, setSelectedFilters] = useState({})
-  const [sortOption, setSortOption] = useState(sortOptions[0])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [filters, setFilters] = useState([])
-  const [categories, setCategories] = useState([])
-  const [productsToDisplayCount, setProductsToDisplayCount] = useState(8); // Initial number of products to display
-  const [stars, setStars] = useState([]); // State for shooting stars
-  const bottomRef = useRef(null); // Ref for the infinite scroll sentinel
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [allTransformedProducts, setAllTransformedProducts] = useState([]);
+  const [filteredAndSortedProducts, setFilteredAndSortedProducts] = useState([]);
+  const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const [sortOption, setSortOption] = useState(sortOptions[0]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [productsToDisplayCount, setProductsToDisplayCount] = useState(8);
+  const [stars, setStars] = useState([]);
+  const bottomRef = useRef(null);
 
-  // Effect for shooting stars animation
   useEffect(() => {
     const generateStars = () => {
       const newStars = [];
-      const numStars = 30; // Number of shooting stars
-      const containerWidth = window.innerWidth;
-      const containerHeight = window.innerHeight;
-
-      for (let i = 0; i < numStars; i++) {
-        const size = Math.random() * 2 + 1; // Random size from 1px to 3px
-        const duration = Math.random() * 5 + 3; // 3s to 8s for varied speeds
-        const delay = Math.random() * 10; // 0s to 10s for staggered starts
-        const startX = Math.random() * containerWidth; // Start anywhere horizontally
-        const startY = Math.random() * containerHeight * 0.2; // Start from top 20% of screen
+      for (let i = 0; i < 30; i++) {
+        const size = Math.random() * 2 + 1;
+        const duration = Math.random() * 5 + 3;
+        const delay = Math.random() * 10;
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight * 0.2;
 
         newStars.push({
           id: i,
@@ -139,7 +118,7 @@ export default function ShopPage() {
             left: `${startX}px`,
             top: `${startY}px`,
             animation: `shootingStar ${duration}s linear ${delay}s infinite`,
-            transformOrigin: '0% 0%', // Rotate around its own point
+            transformOrigin: '0% 0%',
             opacity: Math.random() * 0.7 + 0.3,
             filter: `blur(${Math.random() * 0.5}px)`,
           },
@@ -147,137 +126,85 @@ export default function ShopPage() {
       }
       setStars(newStars);
     };
-
-    generateStars(); // Initial star generation
-
-    // Re-generate stars on window resize to adjust positions
-    const handleResize = () => generateStars();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    generateStars();
+    window.addEventListener('resize', generateStars);
+    return () => window.removeEventListener('resize', generateStars);
   }, []);
 
-
   const fetchProducts = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
     try {
-      const data = await getAllProducts()
-      const transformedProducts = data.map(p => ({
+      const data = await getAllProducts();
+      const transformed = data.map((p) => ({
         id: p.id,
         name: p.title,
-        price: `₹${p.price.toFixed(2)}`, // Changed '$' to '₹'
+        price: `₹${p.price.toFixed(2)}`,
         categoryIds: p.categoryIds || [],
         color: p.color,
         size: p.size,
         imageUrl: p.image_url,
         imageAlt: p.image_alt,
-      }))
-      setAllTransformedProducts(transformedProducts) // Store all products
+      }));
+      setAllTransformedProducts(transformed);
     } catch (err) {
-      console.error('Error fetching products:', err)
-      setError('Failed to load products. Please try again later.')
+      setError('Failed to load products.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   const fetchCategories = useCallback(async () => {
     try {
-      const data = await getAllCategories()
-      setCategories(data)
+      const data = await getAllCategories();
+      setCategories(data);
     } catch (err) {
-      console.error('Error fetching categories:', err)
+      console.error(err);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchProducts()
-    fetchCategories()
-  }, [fetchProducts, fetchCategories])
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
 
-  // Effect to add category names to products once both are loaded
   useEffect(() => {
-    if (allTransformedProducts.length > 0 && categories.length > 0) {
-      const productsWithCategoryNames = allTransformedProducts.map(p => ({
+    if (allTransformedProducts.length && categories.length) {
+      const productsWithNames = allTransformedProducts.map((p) => ({
         ...p,
-        categoryNames: categories
-          .filter(c => p.categoryIds.includes(c.id))
-          .map(c => c.name),
-      }))
-      setAllTransformedProducts(productsWithCategoryNames)
+        categoryNames: categories.filter((c) => p.categoryIds.includes(c.id)).map((c) => c.name),
+      }));
+      setAllTransformedProducts(productsWithNames);
     }
-  }, [categories])
+  }, [categories]);
 
-  // Effect to set up dynamic filters based on fetched products and categories
   useEffect(() => {
-    if (allTransformedProducts.length > 0 && categories.length > 0) {
-      const uniqueColors = [...new Set(allTransformedProducts.map(p => p.color).filter(Boolean))]
-      const uniqueSizes = [...new Set(allTransformedProducts.map(p => p.size).filter(Boolean))]
+    if (!allTransformedProducts.length || !categories.length) return;
+    const catOptions = categories.map((cat) => ({ value: cat.id, label: cat.name, checked: false }));
+    setFilters([{ id: 'categoryIds', name: 'Category', options: catOptions }]);
+  }, [allTransformedProducts, categories]);
 
-      const categoryOptions = categories.map(cat => ({
-        value: cat.id,
-        label: cat.name,
-        checked: false,
-      }))
-
-      const dynamicFilters = [
-        // {
-        //   id: 'color',
-        //   name: 'Color',
-        //   options: uniqueColors.map(color => ({ value: color, label: color.charAt(0).toUpperCase() + color.slice(1), checked: false })),
-        // },
-        {
-          id: 'categoryIds',
-          name: 'Category',
-          options: categoryOptions,
-        },
-        // {
-        //   id: 'size',
-        //   name: 'Size',
-        //   options: uniqueSizes.map(size => ({ value: size, label: size.toUpperCase(), checked: false })),
-        // },
-      ]
-      setFilters(dynamicFilters)
+  useEffect(() => {
+    let filtered = [...allTransformedProducts];
+    Object.entries(selectedFilters).forEach(([id, values]) => {
+      filtered = filtered.filter((p) => p[id]?.some((val) => values.includes(val)));
+    });
+    if (sortOption.name.includes('Price')) {
+      const sign = sortOption.name.includes('Low') ? 1 : -1;
+      filtered.sort((a, b) => sign * (parseFloat(a.price.slice(1)) - parseFloat(b.price.slice(1))));
     }
-  }, [allTransformedProducts, categories])
+    setFilteredAndSortedProducts(filtered);
+    setDisplayedProducts(filtered.slice(0, productsToDisplayCount));
+  }, [allTransformedProducts, selectedFilters, sortOption, productsToDisplayCount]);
 
-  // Effect to filter, sort, and paginate products for display
   useEffect(() => {
-    let newFilteredProducts = [...allTransformedProducts]
-
-    // Apply filters
-    Object.keys(selectedFilters).forEach((filterId) => {
-      const selectedOptions = selectedFilters[filterId]
-      if (selectedOptions && selectedOptions.length > 0) {
-        newFilteredProducts = newFilteredProducts.filter((product) => {
-          const productValue = product[filterId]
-          if (Array.isArray(productValue)) {
-            return productValue.some((val) => selectedOptions.includes(val))
-          }
-          return selectedOptions.includes(productValue)
-        })
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && displayedProducts.length < filteredAndSortedProducts.length) {
+        setProductsToDisplayCount((prev) => prev + 8);
       }
-    })
-
-    // Apply sorting
-    newFilteredProducts.sort((a, b) => {
-      if (sortOption.name === 'Price: Low to High') {
-        // Ensure price string is parsed correctly before comparison
-        return parseFloat(a.price.replace('₹', '')) - parseFloat(b.price.replace('₹', ''))
-      }
-      if (sortOption.name === 'Price: High to Low') {
-        // Ensure price string is parsed correctly before comparison
-        return parseFloat(b.price.replace('₹', '')) - parseFloat(a.price.replace('₹', ''))
-      }
-      return 0
-    })
-
-    setFilteredAndSortedProducts(newFilteredProducts); // Store the full filtered/sorted list
-    setDisplayedProducts(newFilteredProducts.slice(0, productsToDisplayCount)); // Paginate for display
-  }, [allTransformedProducts, selectedFilters, sortOption, productsToDisplayCount])
+    }, { rootMargin: '200px' });
+    if (bottomRef.current) observer.observe(bottomRef.current);
+    return () => bottomRef.current && observer.unobserve(bottomRef.current);
+  }, [displayedProducts.length, filteredAndSortedProducts.length]);
 
   const handleFilterChange = useCallback((sectionId, optionValue, checked) => {
     setSelectedFilters((prevFilters) => {
@@ -295,91 +222,78 @@ export default function ShopPage() {
       }
     })
   }, [])
-
-  const handleSortChange = useCallback((option) => {
-    setSortOption(option)
-  }, [])
-
-  // Infinite Scroll Logic
-  useEffect(() => {
-    if (loading || !bottomRef.current) return; // Don't observe if still loading or ref not available
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && displayedProducts.length < filteredAndSortedProducts.length) {
-          // If the sentinel is visible and there are more products to load
-          setProductsToDisplayCount(prevCount => prevCount + 8); // Load more products
-        }
-      },
-      {
-        rootMargin: '200px', // Load when the bottom is 200px from viewport
-      }
-    );
-
-    observer.observe(bottomRef.current);
-
-    return () => {
-      if (bottomRef.current) {
-        observer.unobserve(bottomRef.current);
-      }
-    };
-  }, [loading, displayedProducts.length, filteredAndSortedProducts.length]); // Re-run when these dependencies change
-
-
-  if (loading) {
-    return (
-      <div className="bg-gray-900 font-inter min-h-screen flex items-center justify-center"> {/* Dark background for loader */}
-        <CapsuleLoader />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-center py-10 text-red-500 bg-gray-900 min-h-screen">{error}</div>
-  }
-
   return (
-    <div className="relative bg-gray-900 font-inter min-h-screen overflow-hidden"> {/* Dark background */}
-      {/* Custom CSS for shooting stars animation */}
+    <div className="relative bg-gray-900 font-inter min-h-screen overflow-hidden">
       <style jsx>{`
         @keyframes shootingStar {
           0% { transform: translate(0, 0) rotate(225deg); opacity: 0; }
-          10% { opacity: 1; }
-          70% { opacity: 1; }
+          10%, 70% { opacity: 1; }
           100% { transform: translate(300px, 300px) rotate(225deg); opacity: 0; }
         }
       `}</style>
-      
-      {/* Shooting Stars Container */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        {stars.map((star) => (
-          <ShootingStar key={star.id} style={star.style} />
-        ))}
-      </div>
 
-      {/* NavBar - Assuming it's fixed and correctly styled */}
-      
-      <main className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> {/* Added relative z-10 to bring content above stars */}
-        <div className="flex items-baseline justify-between border-b border-gray-700 pt-24 pb-6"> {/* Darker border */}
+      {stars.length > 0 && (
+        <div className="absolute inset-0 z-0 pointer-events-none hidden sm:block">
+          {stars.map((star) => (
+            <ShootingStar key={star.id} style={star.style} />
+          ))}
+        </div>
+      )}
+
       <NavBar />
-          <h1 className="text-4xl font-bold tracking-tight text-white">Our Collection</h1> {/* White text */}
+
+      <main className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-32 sm:pt-28">
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-gray-700 pb-6 gap-4">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Our Collection</h1>
         </div>
 
-        <section aria-labelledby="products-heading" className="pt-6 pb-24">
-          <h2 id="products-heading" className="sr-only">Products</h2>
+        <section className="pt-6 pb-24">
+          <div className="lg:hidden mb-4">
+            <button
+              onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded hover:bg-gray-600"
+            >
+              <FunnelIcon className="h-5 w-5 mr-2 text-yellow-400" />
+              {mobileFiltersOpen ? 'Hide Filters' : 'Show Filters'}
+            </button>
+            {mobileFiltersOpen && (
+              <div className="mt-4 space-y-6 bg-gray-800 p-4 rounded-lg">
+                {filters.map((section) => (
+                  <div key={section.id}>
+                    <h3 className="text-sm font-semibold text-white mb-2">{section.name}</h3>
+                    <ul className="space-y-2">
+                      {section.options.map((option, index) => (
+                        <li key={index}>
+                          <label className="flex items-center text-sm text-gray-300">
+                            <input
+                              type="checkbox"
+                              className="mr-2 form-checkbox h-4 w-4 text-blue-600 border-gray-600 rounded bg-gray-700"
+                              checked={selectedFilters[section.id]?.includes(option.value) || false}
+                              onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)}
+                            />
+                            {option.label}
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
             <form className="hidden lg:block">
               {filters.map((section) => (
-                <div key={section.id} className="border-b border-gray-700 pb-6"> {/* Darker border */}
-                  <h3 className="text-sm font-semibold text-white mb-4">{section.name}</h3> {/* White text */}
+                <div key={section.id} className="border-b border-gray-700 pb-6">
+                  <h3 className="text-sm font-semibold text-white mb-4">{section.name}</h3>
                   <ul className="space-y-2">
                     {section.options.map((option, index) => (
                       <li key={index}>
-                        <label className="flex items-center text-sm text-gray-300"> {/* Lighter text for options */}
+                        <label className="flex items-center text-sm text-gray-300">
                           <input
                             type="checkbox"
-                            className="mr-2 form-checkbox h-4 w-4 text-blue-600 border-gray-600 rounded focus:ring-blue-500 bg-gray-700" /* Styled checkbox for dark mode */
+                            className="mr-2 form-checkbox h-4 w-4 text-blue-600 border-gray-600 rounded bg-gray-700"
                             checked={selectedFilters[section.id]?.includes(option.value) || false}
                             onChange={(e) => handleFilterChange(section.id, option.value, e.target.checked)}
                           />
@@ -393,14 +307,13 @@ export default function ShopPage() {
             </form>
 
             <div className="lg:col-span-3">
-              <ProductGrid products={displayedProducts} /> {/* Render only displayed products */}
-              {/* Sentinel for infinite scroll */}
+              {loading ? <CapsuleLoader /> : <ProductGrid products={displayedProducts} />}
               {displayedProducts.length < filteredAndSortedProducts.length && (
                 <div ref={bottomRef} className="text-center py-10">
-                  <CapsuleLoader /> {/* Show loader when more products are being fetched */}
+                  <CapsuleLoader />
                 </div>
               )}
-              {displayedProducts.length === 0 && !loading && (
+              {!loading && displayedProducts.length === 0 && (
                 <div className="text-center py-10 text-gray-400">No products found matching your criteria.</div>
               )}
             </div>
@@ -408,5 +321,5 @@ export default function ShopPage() {
         </section>
       </main>
     </div>
-  )
+  );
 }

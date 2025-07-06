@@ -3,18 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Link, useNavigate } from 'react-router-dom' // Import useNavigate
-import supabase from '../utils/supabaseClient' // Import your supabase client for auth
+import { Link, useNavigate } from 'react-router-dom'
+import supabase from '../utils/supabaseClient'
 
-// Component for a single falling star
 const FallingStar = ({ style }) => (
-  <div
-    className="absolute bg-white rounded-full opacity-0"
-    style={style}
-  ></div>
+  <div className="absolute bg-white rounded-full opacity-0" style={style}></div>
 );
 
-// New component for animated logo
 const LogoAnimator = ({ text }) => {
   const [animatedChars, setAnimatedChars] = useState(
     text.split('').map(char => ({ char, highlight: false }))
@@ -23,40 +18,35 @@ const LogoAnimator = ({ text }) => {
 
   const startAnimation = useCallback(() => {
     let index = 0;
-    const intervalTime = 100; // Time between each letter highlight
-    const resetDelay = 1000; // Delay before restarting the entire animation cycle
+    const intervalTime = 100;
+    const resetDelay = 1000;
 
     const animateNextChar = () => {
-      setAnimatedChars(prevChars => {
-        const newChars = prevChars.map((item, idx) => ({
+      setAnimatedChars(prevChars =>
+        prevChars.map((item, idx) => ({
           ...item,
-          highlight: idx === index, // Only current char is highlighted
-        }));
-        return newChars;
-      });
+          highlight: idx === index,
+        }))
+      );
 
       index++;
       if (index < text.length) {
         animationTimeoutRef.current = setTimeout(animateNextChar, intervalTime);
       } else {
-        // All characters highlighted, reset after a short delay and restart
         animationTimeoutRef.current = setTimeout(() => {
-          setAnimatedChars(text.split('').map(char => ({ char, highlight: false }))); // Reset all highlights
-          animationTimeoutRef.current = setTimeout(startAnimation, resetDelay); // Delay before restarting full animation
-        }, intervalTime * 2); // A little extra delay for the last highlight to fade
+          setAnimatedChars(text.split('').map(char => ({ char, highlight: false })));
+          animationTimeoutRef.current = setTimeout(startAnimation, resetDelay);
+        }, intervalTime * 2);
       }
     };
 
-    // Start the first character animation
     animationTimeoutRef.current = setTimeout(animateNextChar, intervalTime);
   }, [text]);
 
   useEffect(() => {
     startAnimation();
     return () => {
-      if (animationTimeoutRef.current) {
-        clearTimeout(animationTimeoutRef.current);
-      }
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
     };
   }, [startAnimation]);
 
@@ -66,8 +56,7 @@ const LogoAnimator = ({ text }) => {
         <span
           key={idx}
           className={item.highlight ? 'text-yellow-600 transition-colors duration-100 ease-in' : 'transition-colors duration-100 ease-out'}
-          // Using inline style for transitionDelay to ensure smooth fade out even if not highlighted
-          style={{ transitionDelay: item.highlight ? '0s' : '0.1s' }} 
+          style={{ transitionDelay: item.highlight ? '0s' : '0.1s' }}
         >
           {item.char}
         </span>
@@ -76,25 +65,22 @@ const LogoAnimator = ({ text }) => {
   );
 };
 
-
 export default function Hero() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stars, setStars] = useState([]);
   const starContainerRef = useRef(null);
-  const [user, setUser] = useState(null); // State to store user data
-  const [loadingUser, setLoadingUser] = useState(true); // State to track user loading
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const navigate = useNavigate();
 
-  // Effect to handle user authentication state changes
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       setLoadingUser(false);
     });
 
-    // Initial check for user session
     async function getUser() {
-      const { data: { user } = {} } = await supabase.auth.getUser(); // Destructure with default empty object
+      const { data: { user } = {} } = await supabase.auth.getUser();
       setUser(user || null);
       setLoadingUser(false);
     }
@@ -105,24 +91,21 @@ export default function Hero() {
     };
   }, []);
 
-  // Function to handle user logout
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error logging out:', error.message);
-      // Optionally, show a notification to the user
+    if (!error) {
+      setUser(null);
+      navigate('/');
     } else {
-      setUser(null); // Clear user state
-      navigate('/'); // Redirect to home or login page
+      console.error('Logout error:', error.message);
     }
   };
 
-  // Updated navigation links
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Shop', href: '/shop' },
-    { name: 'Cart', href: '/cart' }, // Added Cart link
-    { name: 'Checkout', href: '/checkout' }, // Added Checkout link
+    { name: 'Cart', href: '/cart' },
+    { name: 'Checkout', href: '/checkout' },
     { name: 'My Account', href: '/account' },
   ];
 
@@ -132,6 +115,7 @@ export default function Hero() {
     if (!headingElement) return;
     headingElement.innerHTML = '';
     let totalDelay = 0;
+
     headingText.split(' ').forEach((word, wordIndex) => {
       const wordSpan = document.createElement('span');
       wordSpan.className = 'inline-block whitespace-nowrap';
@@ -143,9 +127,9 @@ export default function Hero() {
         setTimeout(() => {
           charSpan.classList.remove('opacity-0', 'translate-y-full');
           charSpan.classList.add('opacity-100', 'translate-y-0');
-          charSpan.style.color = '#FFD700'; // Gold color for animation
+          charSpan.style.color = '#FFD700';
           setTimeout(() => {
-            charSpan.style.color = ''; // Reset color after animation
+            charSpan.style.color = '';
           }, 500);
         }, currentDelay);
         totalDelay += 50;
@@ -161,20 +145,18 @@ export default function Hero() {
       }
     });
 
-    // --- Falling Stars Animation Logic ---
     const generateStars = () => {
       const newStars = [];
-      const numStars = 50; // Number of stars
+      const numStars = 50;
       const containerWidth = window.innerWidth;
-      const containerHeight = window.innerHeight * 2; // Stars fall from above the viewport
+      const containerHeight = window.innerHeight * 2;
 
       for (let i = 0; i < numStars; i++) {
-        // Changed size range: 1px to 5px for more varied "big, bigger, biggest" effect
-        const size = Math.random() * 40 + 1; 
-        const duration = Math.random() * 10 + 5; // 5s to 15s
-        const delay = Math.random() * 10; // 0s to 10s
-        const left = Math.random() * 100; // 0% to 100% horizontal position
-        const top = Math.random() * -100; // Start above the viewport (-100% to 0%)
+        const size = Math.random() * 40 + 1;
+        const duration = Math.random() * 10 + 5;
+        const delay = Math.random() * 10;
+        const left = Math.random() * 100;
+        const top = Math.random() * -100;
 
         newStars.push({
           id: i,
@@ -182,204 +164,142 @@ export default function Hero() {
             width: `${size}px`,
             height: `${size}px`,
             left: `${left}vw`,
-            top: `${top}vh`, // Use vh for top to start above the screen
+            top: `${top}vh`,
             animation: `fall ${duration}s linear ${delay}s infinite`,
-            opacity: Math.random() * 0.7 + 0.3, // 0.3 to 1.0 opacity
-            filter: `blur(${Math.random() * 0.5}px)`, // Slight blur for softness
+            opacity: Math.random() * 0.7 + 0.3,
+            filter: `blur(${Math.random() * 0.5}px)`,
           },
         });
       }
       setStars(newStars);
     };
 
-    generateStars(); // Initial star generation
-
-    // Re-generate stars on window resize to adjust positions
+    generateStars();
     const handleResize = () => generateStars();
     window.addEventListener('resize', handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
     <div className="relative min-h-screen bg-gray-900 font-inter overflow-hidden">
-      {/* Custom CSS for falling stars animation and logo animation */}
       <style jsx>{`
         @keyframes fall {
           0% { transform: translateY(0vh); opacity: 0.3; }
           20% { opacity: 1; }
           80% { opacity: 1; }
-          100% { transform: translateY(200vh); opacity: 0; } /* Fall 200vh (twice viewport height) */
+          100% { transform: translateY(200vh); opacity: 0; }
         }
       `}</style>
 
-      {/* Falling Stars Container */}
       <div ref={starContainerRef} className="absolute inset-0 z-0 pointer-events-none">
-        {stars.map((star) => (
-          <FallingStar key={star.id} style={star.style} />
-        ))}
+        {stars.map((star) => <FallingStar key={star.id} style={star.style} />)}
       </div>
 
-      <header className="absolute inset-x-0 top-0 z-50 bg-white shadow-md"> {/* White Nav Bar */}
-        <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+      <header className="absolute inset-x-0 top-0 z-50 bg-white shadow-md h-16">
+        <nav className="flex items-center justify-between p-4 lg:px-8">
           <div className="flex lg:flex-1">
             <Link to="/" className="-m-1.5 p-1.5 rounded-lg flex items-center">
               <span className="sr-only">The Shade Store</span>
-              {/* Animated Text Logo */}
               <LogoAnimator text="The Shade Store" />
             </Link>
           </div>
           <div className="flex lg:hidden">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(true)}
-              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-            >
-              <span className="sr-only">Open main menu</span>
+            <button onClick={() => setMobileMenuOpen(true)} className="-m-2.5 p-2.5 text-gray-700 rounded-md">
               <Bars3Icon className="h-6 w-6" />
             </button>
           </div>
-          <div className="hidden lg:flex lg:gap-x-12">
+          <div className="hidden lg:flex lg:gap-x-8">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="text-sm/6 font-semibold text-gray-900 hover:text-yellow-600 transition-colors duration-200"
-              >
+              <Link key={item.name} to={item.href} className="text-sm font-semibold text-gray-900 hover:text-yellow-600">
                 {item.name}
               </Link>
             ))}
-            {/* Conditional Login/Logout and Admin Button */}
             {!loadingUser && (
               <>
                 {user ? (
                   <>
                     {user.email === 'sazidhusain2004@gmail.com' && (
-                      <Link
-                        to="/admin" // Assuming '/admin' is your admin path
-                        className="text-sm/6 font-semibold text-blue-600 hover:text-blue-700 transition-colors duration-200"
-                      >
-                        Admin
-                      </Link>
+                      <Link to="/admin" className="text-sm font-semibold text-blue-600 hover:text-blue-700">Admin</Link>
                     )}
-                    <button
-                      onClick={handleLogout}
-                      className="text-sm/6 font-semibold text-red-600 hover:text-red-700 transition-colors duration-200"
-                    >
+                    <button onClick={handleLogout} className="text-sm font-semibold text-red-600 hover:text-red-700">
                       Logout
                     </button>
                   </>
                 ) : (
-                  <Link
-                    to="/login" // Assuming '/login' is your login path
-                    className="text-sm/6 font-semibold text-green-600 hover:text-green-700 transition-colors duration-200"
-                  >
-                    Login
-                  </Link>
+                  <Link to="/login" className="text-sm font-semibold text-green-600 hover:text-green-700">Login</Link>
                 )}
               </>
             )}
           </div>
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end" />
         </nav>
 
         <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
-          <div className="fixed inset-0 z-50" />
-          <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+          <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full max-w-sm overflow-y-auto bg-white p-6 sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              <Link to="/" className="-m-1.5 p-1.5 rounded-lg flex items-center">
-                <span className="sr-only">The Shade Store</span>
-                {/* Animated Text Logo for mobile */}
+              <Link to="/" className="-m-1.5 p-1.5 flex items-center">
                 <LogoAnimator text="The Shade Store" />
               </Link>
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(false)}
-                className="-m-2.5 rounded-md p-2.5 text-gray-700"
-              >
-                <span className="sr-only">Close menu</span>
+              <button onClick={() => setMobileMenuOpen(false)} className="-m-2.5 p-2.5 text-gray-700">
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
-            <div className="mt-6 flow-root">
-              <div className="-my-6 divide-y divide-gray-500/10">
-                <div className="space-y-2 py-6">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                  {/* Conditional Login/Logout and Admin Button for mobile */}
-                  {!loadingUser && (
+            <div className="mt-6">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-semibold text-gray-900 hover:bg-gray-50"
+                >
+                  {item.name}
+                </Link>
+              ))}
+              {!loadingUser && (
+                <>
+                  {user ? (
                     <>
-                      {user ? (
-                        <>
-                          {user.email === 'sazidhusain2004@gmail.com' && (
-                            <Link
-                              to="/admin"
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-blue-600 hover:bg-gray-50"
-                            >
-                              Admin
-                            </Link>
-                          )}
-                          <button
-                            onClick={() => {
-                              handleLogout();
-                              setMobileMenuOpen(false);
-                            }}
-                            className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-red-600 hover:bg-gray-50 w-full text-left"
-                          >
-                            Logout
-                          </button>
-                        </>
-                      ) : (
-                        <Link
-                          to="/login"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-green-600 hover:bg-gray-50"
-                        >
-                          Login
+                      {user.email === 'sazidhusain2004@gmail.com' && (
+                        <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-semibold text-blue-600 hover:bg-gray-50">
+                          Admin
                         </Link>
                       )}
+                      <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full text-left block px-3 py-2 text-base font-semibold text-red-600 hover:bg-gray-50">
+                        Logout
+                      </button>
                     </>
+                  ) : (
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-base font-semibold text-green-600 hover:bg-gray-50">
+                      Login
+                    </Link>
                   )}
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </DialogPanel>
         </Dialog>
       </header>
 
-      <div className="relative z-10 mx-auto max-w-2xl py-20 sm:py-32 lg:py-40">
+      {/* Hero Content */}
+      <div className="relative z-10 mx-auto max-w-2xl pt-32 pb-16 px-4 sm:px-6 sm:pt-40 sm:pb-20 lg:pt-52 lg:pb-32">
         <div className="text-center">
-          <h1 id="animated-heading" className="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl" /> {/* Text color changed to white */}
-          <p className="mt-8 text-lg font-medium text-pretty text-gray-300 sm:text-xl/8"> {/* Text color changed to gray-300 */}
+          <h1 id="animated-heading" className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white" />
+          <p className="mt-8 text-base sm:text-lg lg:text-xl font-medium text-gray-300">
             Explore our curated collections of modern and timeless apparel designed to elevate your everyday look. Find your unique expression with quality and comfort.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
               to="/checkout"
-              className="rounded-md bg-yellow-500 px-3.5 py-2.5 text-base font-semibold text-gray-900 shadow-xs hover:bg-yellow-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500 transition-colors duration-200"
-            > {/* Button color adjusted */}
+              className="rounded-md bg-yellow-500 px-4 py-2.5 text-base font-semibold text-gray-900 hover:bg-yellow-600 transition"
+            >
               Buy Now
             </Link>
-            <Link
-              to="/shop"
-              className="text-lg font-semibold text-yellow-300 hover:text-yellow-400 transition-colors duration-200"
-            > {/* Link color adjusted */}
-              Explore Collections <span aria-hidden="true">→</span>
+            <Link to="/shop" className="text-lg font-semibold text-yellow-300 hover:text-yellow-400 transition">
+              Explore Collections →
             </Link>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
